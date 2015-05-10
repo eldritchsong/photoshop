@@ -1,9 +1,8 @@
 __author__ = 'brhoades'
 __ver__ = '1.00'
 
-import os
 import utils.logger
-import StringIO
+import struct
 
 
 def int_to_binary(n):
@@ -35,7 +34,7 @@ class PSDFileReader(object):
         """
 
         # logging
-        self.logger = utils.logger.init_logging()
+        self.logger = utils.logger.init_logging(self)
         self.logger.debug('Initialized <{0}.{1} v{2} object at {3:#018x}>'.format(__name__,
                                                                                   self.__class__.__name__,
                                                                                   __ver__,
@@ -43,28 +42,27 @@ class PSDFileReader(object):
 
         self.stream = stream
 
-        self.stream.seek(0, 2)  # go to end of file to get size
-        self.size = self.stream.tell()  # inform of current location
-        self.stream.seek(0)  # return to beginning of file
-        self._cur_line = 0  # default to start of file
-
         # start parse
         self.parse()
 
     def parse(self):
         pass
 
-    def bytes_to_int(self, line):
-        bb = reversed(line)
-        value = 0
-        shift = 0
+    def bytes_to_int(self, byte_string):
+        # bb = reversed(line)
+        # value = 0
+        # shift = 0
+        #
+        # for b in bb:
+        #     b = ord(b)
+        #     value += (b << shift)
+        #     shift += 8
 
-        for b in bb:
-            b = ord(b)
-            value += (b << shift)
-            shift += 8
-
-        self.logger.debug('bytes_to_int. In: {0}, out: {1}'.format(line, value))
+        if len(byte_string) == 2:  # short int
+            value = struct.unpack('>h', byte_string)[0]  # returns tuple
+        else:  # regular int
+            value = struct.unpack('>l', byte_string)[0]  # returns tuple
+        self.logger.debug('bytes_to_int. In: {0}, out: {1}'.format(str(byte_string).encode('string_escape'), value))
         return value
 
     def read_short_int(self):
@@ -107,16 +105,12 @@ class PSDFileReader(object):
         Read bytes of photoshop file
         :return:
         """
-        self.logger.debug('stream.tell(): {0}'.format(self.stream.tell()))
-        self.logger.debug('stream.size(): {0}'.format(self.size))
 
         line = ''
         while line == '':
             line = self.stream.readline().strip()
-            self._cur_line += 1
 
         self.logger.debug(line)
-        self.logger.debug(self._cur_line)
         height = line[14:18]
         width = line[18:22]
         self.logger.debug(self.bytes_to_int(width))

@@ -1,6 +1,6 @@
-__author__ = 'Ben'
+__author__ = 'brhoades'
 
-from PSDFileReader import PSDFileReader
+from framework import PSDFileReader
 from utils import constants
 import StringIO
 
@@ -30,7 +30,6 @@ def validate(label, value, validator):
 class PSDHeader(PSDFileReader):
 
     def __init__(self, stream):
-        super(PSDHeader, self).__init__(stream)
 
         # init variables
         self.signature = None
@@ -41,12 +40,18 @@ class PSDHeader(PSDFileReader):
         self.depth = None
         self.mode = None
 
+        # parse() is called in __init__ of PSDFileReader which causes PSDHeader __init__ to overwrite the value
+        # if super before declaration of variables
+        super(PSDHeader, self).__init__(stream)
+
     def parse(self):
         """
         Read the header
         Header contains the basic properties of the image. Length: 26 bytes
         :return:
         """
+
+        self.logger.debug('parse {0} object at {1:#018x}'.format(self.__class__.__name__, id(self)))
 
         # Signature
         # 4 bytes.
@@ -96,13 +101,57 @@ class PSDHeader(PSDFileReader):
         validate('Mode', self.mode, constants.MODE_LIST)
         self.mode = constants.MODE_LIST[self.mode]
 
+
+class PSDColorMode(PSDFileReader):
+    """
+    Only indexed color and duotone (see the mode field in the File header section) have color mode data.
+    For all other modes, this section is just the 4-byte length field, which is set to zero.
+
+    Indexed color images: length is 768; color data contains the color table for the image, in non-interleaved order.
+
+    Duotone images: color data contains the duotone specification (the format of which is not documented).
+    Other applications that read Photoshop files can treat a duotone image as a gray image, and just preserve the
+    contents of the duotone information when reading and writing the file.
+    """
+
+    def __init__(self, stream):
+        super(PSDColorMode, self).__init__(stream)
+
+    def parse(self):
+
+        # for now, skip this section
+        self.skip(4)
+
+
+class PSDImageResources(PSDFileReader):
+    """
+    The third section of the file contains image resources.
+    It starts with a length field, followed by a series of resource blocks.
+    """
+
+    def __init__(self, stream):
+        super(PSDImageResources, self).__init__(stream)
+
+    def parse(self):
+
+        length = self.read_int()
+        self.logger.debug(length)
+
+        # Signature
+        # 4 bytes
+        # Must be 8BIM
+        signature = self.read_string(4)
+        validate('Signature', signature, constants.SIGNATURE_8BIM)
+
 if __name__ == '__main__':
     s = None
     try:
         s = open(constants.TEST_CASE, 'rb')
         s = StringIO.StringIO(s.read())
 
-        main = PSDHeader(s)
+        header = PSDHeader(s)
+        color_mode = PSDColorMode(s)
+        image_resources = PSDImageResources(s)
     finally:
         if s:
             s.close()

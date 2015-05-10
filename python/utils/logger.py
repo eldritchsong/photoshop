@@ -1,16 +1,16 @@
-__author__ = 'Ben'
+__author__ = 'brhoades'
 
 import logging
 import logging.handlers
 import os
 
 
-def init_logging():
-    logger = logging.getLogger(__name__)
+def init_logging(cls):
+    logger = logging.getLogger('{0}.{1}'.format(cls.__module__, cls.__class__.__name__))
 
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
     handler.setFormatter(formatter)
 
     log_path = os.path.realpath(os.path.join(__file__, '..', '..', '..', 'logs'))
