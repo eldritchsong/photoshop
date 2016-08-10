@@ -1,0 +1,17 @@
+# YAML
+project_root:
+  linux_path: '/mnt/dwtv'
+  windows_path: 'T:\dwtv'
+debug: true
+deployment:
+  local_machine_app: false
+  thirdparty: false
+  web_app: false
+location:
+  name: maya
+  version: 2013
+  module_path: path/to/modules
+python_interpreter: path/to/python/interpreter
+version: v1.00
+logging_level: !!python/name:logging.DEBUG
+name: Photoshop Library

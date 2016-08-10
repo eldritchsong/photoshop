@@ -1,8 +1,10 @@
-__author__ = 'brhoades'
-__ver__ = '1.00'
-
-import utils.logger
 import struct
+
+from deploy import logger
+from utils.yaml_cache import g_yaml_cache
+
+
+__author__ = 'brhoades'
 
 
 def int_to_binary(n):
@@ -34,10 +36,10 @@ class PSDFileReader(object):
         """
 
         # logging
-        self.logger = utils.logger.init_logging(self)
+        self.logger = logger.init_logging(self)
         self.logger.debug('Initialized <{0}.{1} v{2} object at {3:#018x}>'.format(__name__,
                                                                                   self.__class__.__name__,
-                                                                                  __ver__,
+                                                                                  g_yaml_cache.get('version'),
                                                                                   id(self)))
 
         self.stream = stream

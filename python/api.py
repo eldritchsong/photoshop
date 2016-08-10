@@ -1,10 +1,12 @@
-__author__ = 'brhoades'
-__ver__ = '1.00'
-
-import utils.logger
-from utils import constants
-from sections import PSDHeader, PSDColorMode, PSDImageResources
 import StringIO
+
+from deploy import logger
+from utils import constants
+from utils.yaml_cache import g_yaml_cache
+from sections import PSDHeader, PSDColorMode, PSDImageResources
+
+
+__author__ = 'brhoades'
 
 
 class PSDFile(object):
@@ -21,10 +23,10 @@ class PSDFile(object):
         self.stream = stream
         self.filename = filename
 
-        self.logger = utils.logger.init_logging(self)
+        self.logger = logger.init_logging(self)
         self.logger.info('Initialized <{0}.{1} v{2} object at {3:#018x}>'.format(__name__,
                                                                                  self.__class__.__name__,
-                                                                                 __ver__,
+                                                                                 g_yaml_cache.get('version'),
                                                                                  id(self)))
 
         if not self.stream:

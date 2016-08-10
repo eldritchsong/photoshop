@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="res">
+    <file>moon_logo_win_icon.png</file>
+    <file>dreamworks_logo_xsmall.png</file>
+  </qresource>
+</RCC>

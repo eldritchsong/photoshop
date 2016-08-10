@@ -1,8 +1,10 @@
-__author__ = 'brhoades'
+import StringIO
 
 from framework import PSDFileReader
 from utils import constants
-import StringIO
+
+
+__author__ = 'brhoades'
 
 
 def validate(label, value, validator):
